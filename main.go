@@ -8,7 +8,6 @@ import (
 
 const (
 	ListenAddress = ":8080"
-	// TODO: add further configuration parameters here ...
 )
 
 func main() {
