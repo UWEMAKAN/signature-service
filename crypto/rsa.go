@@ -1,7 +1,10 @@
 package crypto
 
 import (
+	"crypto"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
 )
@@ -10,6 +13,16 @@ import (
 type RSAKeyPair struct {
 	Public  *rsa.PublicKey
 	Private *rsa.PrivateKey
+}
+
+// 
+func (s *RSAKeyPair) Sign(dataToBeSigned []byte) ([]byte, error) {
+    hashed := sha512.Sum512(dataToBeSigned)
+    signature, err := rsa.SignPKCS1v15(rand.Reader, s.Private, crypto.SHA512, hashed[:])
+    if err != nil {
+        return nil, err
+    }
+    return signature, nil
 }
 
 // RSAMarshaler can encode and decode an RSA key pair.
@@ -31,12 +44,12 @@ func (m *RSAMarshaler) Marshal(keyPair RSAKeyPair) ([]byte, []byte, error) {
 		Bytes: privateKeyBytes,
 	})
 
-	encodePublic := pem.EncodeToMemory(&pem.Block{
+	encodedPublic := pem.EncodeToMemory(&pem.Block{
 		Type:  "RSA_PUBLIC_KEY",
 		Bytes: publicKeyBytes,
 	})
 
-	return encodePublic, encodedPrivate, nil
+	return encodedPublic, encodedPrivate, nil
 }
 
 // Unmarshal takes an encoded RSA private key and transforms it into a rsa.PrivateKey.
