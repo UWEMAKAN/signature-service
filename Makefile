@@ -4,6 +4,11 @@ server:
 test:
 	go test -v -cover -short -race ./...
 
+load_test:
+	rm -rf reports
+	mkdir reports
+	go test -v -cover -race -run TestLoad ./...
+
 clear_cache:
 	go clean -testcache
 
