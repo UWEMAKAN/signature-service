@@ -51,6 +51,4 @@ Signature service is a system designed to securely manage signature devices and 
 
 ## API Documentation
 
-The API documentation for the service is available at this [Postman link](https://api.postman.com/collections/6576731-e66af949-b294-4de9-b802-c6d7fa35de2d?access_key=PMAT-01JCYYNEZQSFX8H3DS78FEEQNV)
-
-
+The API documentation for the service is available at this [Postman link](https://www.postman.com/uwemakan/my-public-workspace/collection/gkmqhv3/signature-service)
