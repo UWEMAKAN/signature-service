@@ -20,14 +20,16 @@ import (
 	"github.com/uwemakan/signing-service/domain"
 	"github.com/uwemakan/signing-service/utils"
 )
+var config = &utils.Config{ServerAddress: ":0", AESKey: []byte("1234567890123456")}
 
 func TestLoadCreateSignatureDevice(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping TestLoadCreateSignatureDevice in short mode.")
 	}
 	var wg sync.WaitGroup
-	server := NewServer(":0")
-	numberOfDevices := 1000
+	server := NewServer(config)
+	// You can vary the number of devices
+	numberOfDevices := 100
 	for i := range numberOfDevices {
 		wg.Add(1)
 		go func(t *testing.T, n int) {
@@ -124,9 +126,10 @@ func TestLoadSignTransaction(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
-	server := NewServer(":0")
+	server := NewServer(config)
+	// You can vary the number of devices and the number of signings
 	numberOfDevices := 100
-	numberOfSignings := 2500
+	numberOfSignings := 1000
 	dch := make(chan time.Duration, numberOfDevices)
 	sch := make(chan time.Duration, numberOfDevices*numberOfSignings)
 

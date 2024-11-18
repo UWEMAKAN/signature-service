@@ -11,6 +11,8 @@ import (
 	"github.com/uwemakan/signing-service/utils"
 )
 
+var aesKey = []byte("1234567890123456")
+
 type SignatureService interface {
 	ListSignatureDevices() ([]*domain.SignatureDevice, error)
 	GetSignatureDevice(deviceId string) (*domain.SignatureDevice, error)
@@ -43,11 +45,15 @@ func (s *signatureService) CreateSignatureDevice(request *domain.SignatureDevice
 	if err != nil {
 		return nil, err
 	}
+	encryptedPrivateKey, err := crypto.EncryptAES(privateKey, aesKey)
+	if err != nil {
+		return nil, err
+	}
 	label := ""
 	if request.Label != nil {
 		label = *request.Label
 	}
-	return s.repo.CreateDevice(request.ID, request.Algorithm, string(publicKey), string(privateKey), label)
+	return s.repo.CreateDevice(request.ID, request.Algorithm, string(publicKey), encryptedPrivateKey, label)
 }
 
 func (s *signatureService) SignTransaction(deviceId, data string) (*domain.SignTransactionResponse, error) {
@@ -62,7 +68,11 @@ func (s *signatureService) SignTransaction(deviceId, data string) (*domain.SignT
 	if device.LastSignature != dataSlice[2] {
 		return nil, utils.ErrInvalidLastSignature
 	}
-	signer, err := s.signerFactory.GetSigner(device.Algorithm, []byte(device.PrivateKey))
+	decryptedPrivateKey, err := crypto.DecryptAES(device.PrivateKey, aesKey)
+	if err != nil {
+		return nil, err
+	}
+	signer, err := s.signerFactory.GetSigner(device.Algorithm, []byte(decryptedPrivateKey))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +81,7 @@ func (s *signatureService) SignTransaction(deviceId, data string) (*domain.SignT
 		return nil, err
 	}
 	encodedSignature := base64.StdEncoding.EncodeToString(signature)
-	s.repo.SignAndIncrementCounter(deviceId, encodedSignature)
+	s.repo.UpdateDevice(deviceId, encodedSignature)
 	return &domain.SignTransactionResponse{Signature: encodedSignature, SignedData: data}, nil
 }
 

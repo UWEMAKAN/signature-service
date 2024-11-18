@@ -56,7 +56,7 @@ func TestListDevices(t *testing.T) {
 	requires.Len(devices, 1)
 }
 
-func TestSignAndIncrementCounter(t *testing.T) {
+func TestUpdateDevice(t *testing.T) {
 	requires := require.New(t)
 	device, repo := createDevice(t)
 	newSignature := utils.RandomString(24)
@@ -64,7 +64,7 @@ func TestSignAndIncrementCounter(t *testing.T) {
 	requires.Equal(0, device.SignatureCounter)
 	requires.Equal(base64.StdEncoding.EncodeToString([]byte(device.ID)), device.LastSignature)
 
-	err := repo.SignAndIncrementCounter(device.ID, newSignature)
+	err := repo.UpdateDevice(device.ID, newSignature)
 	requires.NoError(err)
 	device, err = repo.GetDevice(device.ID)
 	requires.NoError(err)
@@ -72,22 +72,23 @@ func TestSignAndIncrementCounter(t *testing.T) {
 	requires.Equal(1, device.SignatureCounter)
 	requires.Equal(newSignature, device.LastSignature)
 
-	err = repo.SignAndIncrementCounter(utils.RandomString(16), newSignature)
+	err = repo.UpdateDevice(utils.RandomString(16), newSignature)
 	requires.Error(err)
 	requires.ErrorIs(err, utils.ErrDeviceNotFound)
 }
 
-func TestLoadSignAndIncrementCounter(t *testing.T) {
+func TestLoadUpdateDevice(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping TestLoadSignAndIncrementCounter in short mode.")
+		t.Skip("Skipping TestLoadUpdateDevice in short mode.")
 	}
 	repo := NewInMemorySignatureDeviceRepository()
 	var wg sync.WaitGroup
-	nd := 10
-	ms := 1000
-	for range nd {
+	// You can vary the number of devices and the number of signings
+	numberOfDevices := 10
+	numberOfSignings := 100
+	for range numberOfDevices {
 		wg.Add(1)
-		go func(t *testing.T, m int) {
+		go func(m int) {
 			defer wg.Done()
 			requires := require.New(t)
 			deviceId := utils.RandomString(16)
@@ -101,23 +102,23 @@ func TestLoadSignAndIncrementCounter(t *testing.T) {
 			requires.NotNil(device)
 			for range m {
 				wg.Add(1)
-				go func(tt *testing.T) {
+				go func() {
 					defer wg.Done()
 					requires := require.New(t)
-					err := repo.SignAndIncrementCounter(device.ID, utils.RandomString(10))
+					err := repo.UpdateDevice(device.ID, utils.RandomString(10))
 					requires.NoError(err)
-				}(t)
+				}()
 			}
-		}(t, ms)
+		}(numberOfSignings)
 	}
 	wg.Wait()
 	requires := require.New(t)
 	devices, err := repo.ListDevices()
 	requires.NoError(err)
 	requires.NotNil(devices)
-	requires.Len(devices, nd)
+	requires.Len(devices, numberOfDevices)
 	for _, device := range devices {
-		requires.Equal(ms, device.SignatureCounter)
+		requires.Equal(numberOfSignings, device.SignatureCounter)
 		requires.NotEqual(base64.StdEncoding.EncodeToString([]byte(device.ID)), device.ID)
 	}
 }

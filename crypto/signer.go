@@ -14,6 +14,7 @@ type SignerFactory struct{
 	rsaMarshaler *RSAMarshaler
 }
 
+// NewSignerFactory returns a new SignerFactory.
 func NewSignerFactory() *SignerFactory {
 	return &SignerFactory{
 		eccMarshaler: &ECCMarshaler{},
@@ -21,6 +22,7 @@ func NewSignerFactory() *SignerFactory {
 	}
 }
 
+// GetSigner returns a Signer implementation for a given algorithm and private key.
 func (f *SignerFactory) GetSigner(algorithm string, privateKey []byte) (Signer, error) {
     switch algorithm {
     case "RSA":

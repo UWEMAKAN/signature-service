@@ -62,7 +62,7 @@ func (repo *InMemorySignatureDeviceRepository) ListDevices() ([]*domain.Signatur
     return devices, nil
 }
 
-func (repo *InMemorySignatureDeviceRepository) SignAndIncrementCounter(deviceId, newSignature string) error {
+func (repo *InMemorySignatureDeviceRepository) UpdateDevice(deviceId, newSignature string) error {
     repo.mu.Lock()
     defer repo.mu.Unlock()
 

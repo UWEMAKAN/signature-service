@@ -19,6 +19,7 @@ type KeyPair struct {
 	Private []byte
 }
 
+// NewKeyPairFactory returns a new KeyPairFactory.
 func NewKeyPairFactory() *KeyPairFactory {
 	return &KeyPairFactory{
 		rsaGenerator:  &RSAGenerator{

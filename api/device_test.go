@@ -18,7 +18,7 @@ import (
 
 func TestHandler(t *testing.T) {
 	requires := require.New(t)
-	server := NewServer(":0")
+	server := NewServer(config)
 	recorder := httptest.NewRecorder()
 
 	url := "/api/v0/signature-devices"
@@ -137,7 +137,7 @@ func TestCreateSignatureDevice(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			server := NewServer(":0")
+			server := NewServer(config)
 			tc.setup(server)
 			recorder := httptest.NewRecorder()
 
@@ -221,7 +221,7 @@ func TestListSignatureDevices(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			server := NewServer(":0")
+			server := NewServer(config)
 			tc.setup(server)
 			recorder := httptest.NewRecorder()
 
@@ -320,7 +320,7 @@ func TestGetSignatureDevice(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			server := NewServer(":0")
+			server := NewServer(config)
 			tc.setup(server)
 			recorder := httptest.NewRecorder()
 
@@ -457,7 +457,7 @@ func TestSignTransaction(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			server := NewServer(":0")
+			server := NewServer(config)
 			tc.setup(server)
 			recorder := httptest.NewRecorder()
 
