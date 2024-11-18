@@ -22,14 +22,14 @@ type ErrorResponse struct {
 
 // Server manages HTTP requests and dispatches them to the appropriate services.
 type Server struct {
-	listenAddress          string
+	config                 *utils.Config
 	signatureDeviceService services.SignatureService
 }
 
 // NewServer is a factory to instantiate a new Server.
-func NewServer(listenAddress string) *Server {
+func NewServer(config *utils.Config) *Server {
 	return &Server{
-		listenAddress: listenAddress,
+		config: config,
 		signatureDeviceService: services.NewSignatureService(
 			services.SignatureServiceParams{
 				Repo:           persistence.NewInMemorySignatureDeviceRepository(),
@@ -49,7 +49,7 @@ func (s *Server) Run() error {
 	mux.Handle("/api/v0/signature-devices/", http.HandlerFunc(s.GetSignatureDevice))
 	mux.Handle("/api/v0/signature-devices/sign", http.HandlerFunc(s.SignTransaction))
 
-	return http.ListenAndServe(s.listenAddress, mux)
+	return http.ListenAndServe(s.config.ServerAddress, mux)
 }
 
 // WriteInternalError writes a default internal error message as an HTTP response.

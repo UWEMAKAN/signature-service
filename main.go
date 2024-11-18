@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/uwemakan/signing-service/api"
+	"github.com/uwemakan/signing-service/utils"
 )
 
 const (
@@ -11,7 +12,7 @@ const (
 )
 
 func main() {
-	server := api.NewServer(ListenAddress)
+	server := api.NewServer(utils.NewConfig())
 	log.Default().Println("Starting server on ", ListenAddress)
 
 	if err := server.Run(); err != nil {
